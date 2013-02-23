@@ -283,10 +283,17 @@ class Xysti {
 
 		Log::write('error', 'Error ' . $error['code'] . ' at ' . URI::current() . '. ' . $reason);
 
-		Xysti::$views['content'] = 'content.misc.error';
-
-		Xysti::$data['error'] = $error;
-
+		if(View::exists('content.misc.error')):
+			Xysti::$views['content'] = 'content.misc.error';
+			Xysti::$data['error'] = $error;
+		else:
+			Xysti::$content = page_title(array(
+				'echo' => FALSE,
+				'title' => $error['title'],
+				'caption' => $error['code']
+			)) . PHP_EOL . $error['content'];
+		endif;
+		
 		$view = View::make(Config::get('xysti.template'));
 
 		if($error['code'] == 'Generic'):
