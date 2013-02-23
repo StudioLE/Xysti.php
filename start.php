@@ -9,15 +9,7 @@
 //	2013-02-23 Beta Release
 //	---------------------------------------------------
 
-return array(
 
-	'xysti' => array(
-		'handles' => '(:any)',
-		'autoloads' => array(
-			'map' => array(
-				'Xysti' => '(:bundle)/xysti.php'
-			)
-		)
-	),
-
+Autoloader::map(array(
+	'Xysti' => '(:bundle)/xysti.php'
 );
