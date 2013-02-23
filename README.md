@@ -12,9 +12,10 @@ Xysti makes developing both static and dynamic websites a breeze a master templa
 ## Features
 
 - Flexible template helper functions
-- Automatically load template and content views
-- Automatically validate post data (requires Former)
-- Easily generate login/logout pages
+- Master template and content views
+- Automated post data validation (requires Former)
+- Easily generate login / logout pages
+- Rich error views using your master template
 
 
 ## Installation
