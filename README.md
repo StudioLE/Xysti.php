@@ -28,16 +28,8 @@ Finally, add xysti to your bundles array: `application/bundles.php`.
 ```php
 return array(
 
-	'xysti' => array(
-		'auto' => true,
-		'handles' => '(:any)',
-		'autoloads' => array(
-			'map' => array(
-			    'Xysti' => '(:bundle)/xysti.php'
-			)
-		)
-	),
-
+	'xysti' => array( 'auto' => true )
+	
 );
 ```
 
