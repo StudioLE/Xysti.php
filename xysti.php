@@ -187,8 +187,6 @@ class Xysti {
 
 		// If validation has failed
 		if($validation->fails()):
-		//	new dbug($validation);
-		//	new dbug(Former);
 			Session::flash('warning', 'Could not submit. Validation errors were found.');
 			Former::withErrors($validation);
 			// Make the page without any more routes
@@ -454,7 +452,7 @@ class Xysti {
 			Log::write('error', 'Unexpected Xysti::page() call at ' . URI::current() . '.');
 		endif;
 
-		Xysti::helper('dbug');
+		//Xysti::helper('dbug');
 
 		// Page was found
 		if($page):

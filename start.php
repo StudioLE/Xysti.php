@@ -11,5 +11,5 @@
 
 
 Autoloader::map(array(
-	'Xysti' => '(:bundle)/xysti.php'
-);
+	'Xysti' => Bundle::path('xysti') . 'xysti.php'
+));
