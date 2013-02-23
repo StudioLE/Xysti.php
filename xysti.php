@@ -287,6 +287,7 @@ class Xysti {
 			Xysti::$views['content'] = 'content.misc.error';
 			Xysti::$data['error'] = $error;
 		else:
+			Xysti::helper('template');
 			Xysti::$content = page_title(array(
 				'echo' => FALSE,
 				'title' => $error['title'],
