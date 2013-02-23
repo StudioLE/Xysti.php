@@ -286,6 +286,7 @@ function downloads($download_keys) {
  * 
  * Generate Bootstrap styled thumbnails
  * @param array $args
+ * @param array $imgs
  */
 function thumbnails($args = array(), $imgs = array()) {
 	$args = array_merge(array(
@@ -295,13 +296,16 @@ function thumbnails($args = array(), $imgs = array()) {
 		'span' => 3,
 		'lightbox' => TRUE,
 		'tooltip' => TRUE,
-		'timthumb' => FALSE
+		'timthumb' => FALSE,
+		'imgs' => array()
 	), $args);
 	$output = '';
 	
 	if($args['ul']) {
 		$output = '<ul class="thumbnails">' . PHP_EOL;
 	}
+
+	$imgs = array_merge($args['imgs'], $imgs);
 
 	foreach($imgs as $img):
 
