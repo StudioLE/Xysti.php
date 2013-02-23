@@ -7,7 +7,6 @@
 
 return array(
 
-	
 	// 	Visible
 	// ------------------------------------------------
 
@@ -28,13 +27,11 @@ return array(
 		)
 	),
 
-
 	// 	HIDDEN
 	// -------------------------------------------------
 	
 	'login' => array(
 		'title' => 'Sign In',
-		'caption' => 'or sign up for a <a href="regiser">new account</a>.',
 		'hidden' => TRUE,
 		'post_validation' => array(
 			'email' => 'required|email',
