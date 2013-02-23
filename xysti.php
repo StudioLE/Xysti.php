@@ -1,4 +1,4 @@
-+<?php
+<?php
 
 //	Xysti
 //	Developed by Laurence Elsdon

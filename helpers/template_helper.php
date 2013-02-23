@@ -1,4 +1,4 @@
-+<?php
+<?php
 
 //	Xysti Template Helper
 //	Developed by Laurence Elsdon
