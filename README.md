@@ -87,11 +87,11 @@ Generate a Bootstrap styled button
 - `$args['after']` `string` Output after. Default is ``
 
 #### downloads( $download_keys )
-Generate Bootstrap styled thumbnails
+Generate Bootstrap styled buttons for Xysti downloads
 - `$download_keys` `array` An array of Xysti download keys
 
 #### thumbnails( $args, $imgs )
-Generate `<title>`
+Generate Bootstrap styled thumbnails
 - `$args['echo']` `bool` Echo or return the output. Default is `true`
 - `$args['ul']` `bool` Wrap in `<ul>`. Default is `true`
 - `$args['span']` `int` Thumbnail width. Default is `3`
@@ -104,3 +104,15 @@ Generate `<title>`
 - `$imgs[]['title']` `string` Title attribute. Default is `false`
 - `$imgs[]['full']` `string` data-full attribute. Default is `false`
 
+#### timbthumb( $args )
+Generate a TimThumb link
+- `$args['w'] `int` Width. Default is `false`
+- `$args['h'] `int` Width. Default is `false`
+- `$args['span'] `int` Override width with Bootstrap span. Default is `false`
+- `$args['src'] `string` Img src relative to timthumb. Default is ``
+- `$args['wh'] `int` Set width or height for lightbox. Default is `false`
+
+#### alerts( $args )
+Generate Bootstrap style alerts from session data
+- `$args['echo']` `bool` Echo or return the output. Default is `true`
+- `$args['dismiss']` `bool` Allow dismiss. Default is `true`
