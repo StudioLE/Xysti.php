@@ -2,7 +2,11 @@
 
 A feature rich content framework bundle for Laravel.
 
-At its simplest Xysti makes generating navigation menus, breadcrumbs and page titling simple by drawing information from a sitemap array. But Xysti is far more powerful than that, it extends the [Laravel](http://laravel.com) framework making development of both static and dynamic sites a breeze.
+Xysti makes templating simpler. You provide a sitemap array containing page meta and Xysti's template helper generates your `<title>` tags, breadcrumbs, navigation menus and more.
+
+Xysti's sitemap makes many tasks simpler, for example to require user authentication for a page just include `'auth' => TRUE` in the page meta. Need to hide a page from the navigation menu? `'hidden' => TRUE`
+
+Xysti makes developing both static and dynamic websites a breeze a master template is automatically loaded with your page content nested.
 
 
 ## Features
