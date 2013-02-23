@@ -90,3 +90,17 @@ Generate a Bootstrap styled button
 Generate Bootstrap styled thumbnails
 - `$download_keys` `array` An array of Xysti download keys
 
+#### thumbnails( $args, $imgs )
+Generate `<title>`
+- `$args['echo']` `bool` Echo or return the output. Default is `true`
+- `$args['ul']` `bool` Wrap in `<ul>`. Default is `true`
+- `$args['span']` `int` Thumbnail width. Default is `3`
+- `$args['lightbox']` `bool` rel="lightbox". Default is `true`
+- `$args['tooltip']` `bool` rel="tooltip". Default is `true`
+- `$args['timthumb']` `bool` Run timthumb on each img. Default is `false`
+- `$args['imgs']` `array` Array of images (merged with $imgs). Default is `array()`
+- `$imgs[]['href']` `string` Thumbnail link. Default is `$img['src']`
+- `$imgs[]['span']` `int` Thumbnail width. Default is `$args['span']`
+- `$imgs[]['title']` `string` Title attribute. Default is `false`
+- `$imgs[]['full']` `string` data-full attribute. Default is `false`
+
