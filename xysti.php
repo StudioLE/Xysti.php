@@ -68,7 +68,7 @@ class Xysti {
 	 * Data for use in views
 	 * @var array
 	 */
-	public static $data;
+	public static $data = array();
 
 
 	// 	Class assets
@@ -213,10 +213,13 @@ class Xysti {
 	 * Render a view
 	 * 
 	 * Picks the template and the page content
+	 * @param array $data
 	 * @return string
 	 */
-	public static function make()
+	public static function make($data = array())
 	{
+		// Data to be bound to views
+		Xysti::$data = array_merge(Xysti::$data, $data);
 		
 		// Which template?
 
@@ -257,10 +260,10 @@ class Xysti {
 		if(isset(Xysti::$views['content']) OR isset(Xysti::$content)):
 			// If there is a template then load it
 			if(Xysti::$views['template']):
-				return View::make(Xysti::$views['template']);
+				return View::make(Xysti::$views['template'], Xysti::$data);
 			// Else just load the content
 			else:
-				return View::make(Xysti::$views['content']);
+				return View::make(Xysti::$views['content'], Xysti::$data);
 			endif;
 		// Else 404
 		else:
@@ -333,9 +336,9 @@ class Xysti {
 
 		if(empty(Xysti::$content)):
 			if( ! empty($args['view'])):
-				$output = render($args['view']);
+				$output = render($args['view'], Xysti::$data);
 			else:
-				$output = render(Xysti::$views['content']);
+				$output = render(Xysti::$views['content'], Xysti::$data);
 			endif;
 		else:
 			$output = Xysti::$content;
