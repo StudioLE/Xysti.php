@@ -97,17 +97,29 @@ class Xysti {
 	public static function helper($helper)
 	{
 		// Only include if it's not been included before
-		if(in_array($helper, Xysti::$helpers)):
+		if(in_array($helper, Xysti::$helpers)) {
 			return TRUE;
-		else:
-			Xysti::$helpers[] = $helper;
-		endif;
-
+		}
+		
 		// Quick hack to use codeigniter helpers easier
 		if ( ! defined('BASEPATH')) {
 			define('BASEPATH', URL::base());
 		}
-		include 'bundles/xysti/helpers/' . $helper . '_helper.php';
+		
+		if(file_exists('bundles/xysti/helpers/' . $helper . '_helper.php')):
+			include 'bundles/xysti/helpers/' . $helper . '_helper.php';
+		elseif(file_exists('application/libraries/' . $helper . '_helper.php')):
+			include 'application/libraries/' . $helper . '_helper.php';
+		else:
+			$error_message = 'Could not find helper ' . $helper . ' at ' . URI::current() . '.';
+			Log::write('error', $error_message);
+			exit($error_message);
+			return FALSE;
+		endif;
+		
+		Xysti::$helpers[] = $helper;
+		return TRUE;
+		
 	} // helper()
 
 	
