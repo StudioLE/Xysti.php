@@ -436,6 +436,7 @@ function alerts($args = array()) {
 				$output .= '<button type="button" class="close" data-dismiss="alert">&times;</button>';
 			}
 			$output .= Session::get($alert) . '</div>';
+			Session::forget($alert);
 		endif;
 	endforeach;
 	
