@@ -387,7 +387,7 @@ function timthumb($args = array()) {
 		'src' => '',
 		'wh' => FALSE
 	), $args);
-	$output = 'assets/img/servant.php?src=' . $args['src'];
+	$output = Config::get('timthumb') . '?src=' . $args['src'];
 	if($args['wh']):
 		$img['size'] = getimagesize('public/assets/img/' . $args['src']);
 		if( ! is_array($args['wh'])) {

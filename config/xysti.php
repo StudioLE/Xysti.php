@@ -23,6 +23,11 @@ return array(
 	'analytics' => 'UA-XXXXXXX-X',
 
 	/**
+	 * TimThumb path
+	 */
+	'timthumb' => 'img/timthumb.php',
+
+	/**
 	 * Errors
 	 */
 	'errors' => array(
