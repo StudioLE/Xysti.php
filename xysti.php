@@ -47,7 +47,7 @@ class Xysti {
 	 * Render a string instead of a content view
 	 * @var string
 	 */
-	private static $content;
+	public static $content;
 
 
 	/**
@@ -156,6 +156,16 @@ class Xysti {
 	 */
 	public static function before()
 	{
+
+		// Is the page disabled?
+		if(Xysti::page('disabled')):
+			if(Xysti::page('disabled') === TRUE):
+				return Xysti::error(404);
+			else:
+				return Xysti::page('disabled');
+			endif;
+		endif;
+		
 
 		// Is auth required
 		if(Xysti::page('auth')):
@@ -388,15 +398,33 @@ class Xysti {
 	 * Extend the sitemap
 	 * 
 	 * Checks whether the sitemap has been fetched, then returns it.
+	 *  
 	 * @param array $extension
 	 * @return array Xysti::$sitemap
 	 */
 	public static function extend_sitemap($extension)
 	{
 		Xysti::$sitemap = array_merge_recursive(Xysti::sitemap(), $extension);
+		// Reset the page cache.
+		Xysti::$page = NULL;
 		return Xysti::$sitemap;
 	}
-
+	
+	
+	/**
+	 * Override the page
+	 * 
+	 * Override the $page variable.
+	 * extend_sitemap() is the prefered method.
+	 *  
+	 * @param array $page
+	 * @return array $page
+	 */
+	public static function page_override($page)
+	{
+		Xysti::$page = $page;
+		return $page;
+	}
 
 	private static function sitemap_page($segment_count, $segments)
 	{

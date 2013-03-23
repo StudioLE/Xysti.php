@@ -319,6 +319,7 @@ function thumbnails($args = array(), $imgs = array()) {
 			'span' => $args['span'],
 			'title' => FALSE,
 			'full' => FALSE,
+			'caption' => FALSE
 		), $img);
 
 		if($args['timthumb']):
@@ -356,6 +357,9 @@ function thumbnails($args = array(), $imgs = array()) {
 		$output .= '>' . PHP_EOL;
 		$output .= '<img src="' . $img['src'] . '" />' . PHP_EOL;
 		$output .= '</a>' . PHP_EOL;
+		if($img['caption']) {
+			$output .= '<div class="caption">' . $img['caption'] . '</div>';
+		}
 		$output .= '</li>' . PHP_EOL;
 
 	endforeach;
@@ -436,6 +440,7 @@ function alerts($args = array()) {
 				$output .= '<button type="button" class="close" data-dismiss="alert">&times;</button>';
 			}
 			$output .= Session::get($alert) . '</div>';
+			Session::flash($alert, FALSE);
 			Session::forget($alert);
 		endif;
 	endforeach;
