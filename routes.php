@@ -35,35 +35,6 @@ Route::filter('validate', function()
 
 
 
-// 	Temporary routes
-// ------------------------------------------------
-
-
-/**
- * Redirect the homepage
- */
-Route::get('delete-user/(:num)', function()
-{
-	try {
-		// update the user
-		$user = Sentry::user(intval(URI::segment(2)));
-		$delete = $user->delete();
-		if ($delete):
-			Session::flash('success', 'User deleted');
-		else:
-			Session::flash('warning', 'User not deleted');
-		endif;
-	}
-	catch(Sentry\SentryException $e) {
-		Session::flash('error', $e->getMessage());
-	}
-
-	Xysti::helper('template');
-	alerts();
-});
-
-
-
 // 	Permanent routes
 // ------------------------------------------------
 
