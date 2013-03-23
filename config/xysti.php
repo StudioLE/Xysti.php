@@ -9,21 +9,44 @@ return array(
 
 	/**
 	 * Master template view
+	 * 
+	 * This should be a php file within your `application/views` directory.
 	 */
 	'template' => 'master',
 
 	/**
-	 * Use less
-	 */
-	'less' => 0,
-
-	/**
 	 * Google analytics
+	 *
+	 * Specify your analytics code for use in the template view.
 	 */
 	'analytics' => 'UA-XXXXXXX-X',
 
 	/**
+	 * Authentication model
+	 *
+	 * Which authentication method model should we use?
+	 * Currently permits 'sentry' or 'default'.
+	 * FALSE will disable Xysti's authentication routes.
+	 */
+	'auth' => 'sentry',
+
+	/**
+	 * Authentication routes
+	 *
+	 * Which uri should Xysti map authentication functions to?
+	 * To disable auth routes set `auth` to FALSE
+	 */
+	'auth_routes' => array(
+		'login' => 'login',
+		'logout' => 'logout',
+		'register' => 'register'
+	),
+
+	/**
 	 * TimThumb path
+	 *
+	 * The path at which timthumb ?src urls should be pointed.
+	 * I recommend setting renaming timthumb.php to index.php and referencing the directory. 
 	 */
 	'timthumb' => 'img/timthumb.php',
 
@@ -54,6 +77,8 @@ return array(
 
 	/**
 	 * Downloads
+	 * 
+	 * An array of named downloads for use with the downloads() template function.
 	 */
 	'downloads' => array(
 		'conversation-club-workbook' => array(
