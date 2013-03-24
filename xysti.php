@@ -488,6 +488,7 @@ class Xysti {
 			if($depth == $segment_count):
 				// Return item or 
 				if(isset($walk[$this_segment])) {
+					$walk[$this_segment]['slug'] = $this_segment;
 					return $walk[$this_segment];
 				}
 				break;
@@ -518,10 +519,9 @@ class Xysti {
 	 * 
 	 * @param array $request Page meta key
 	 * @param array $page Page meta array
-	 * @param string $segment The page segment / slug
 	 * @return mixed
 	 */
-	public static function page_meta($request, $page, $segment = NULL)
+	public static function page_meta($request, $page)
 	{
 		// If all are sought
 		if($request == 'all'):
@@ -537,7 +537,7 @@ class Xysti {
 		// The meta has not been explicitly set so lets estimate it
 		switch($request):
 			case 'title':
-				return Str::title($segment);
+				return Str::title($page['slug']);
 			break;
 			case 'hidden':
 				// If the page requires authentication and the user is NOT logged in
@@ -547,6 +547,7 @@ class Xysti {
 				elseif(isset($page['disabled']) && $page['disabled'])
 					return TRUE;
 				endif;
+			case 'href':
 			break;
 		endswitch;
 		Log::write('error', 'Could not find Xysti::page_meta(' . $request . ') at ' . URI::current() . '.');

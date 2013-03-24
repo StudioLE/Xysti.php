@@ -98,6 +98,10 @@ return array(
 );
 ```
 
+
+##### `redirect` vs `href`
+On the outset the `redirect` and `href` meta attributes may appear to do the same thing but it's a matter of visibility. `href` should be used to incorporate an link in a menu where a page has never existed; though it appears in the context with an apparent URI no URI exists at that place. `redirect` is used if you wish to mask the destination of a URI. For instance you may wish to redirect the URI `login` to `users/authentication/login`. Or it could be used as a short url for an external page. For instance `example.com/linkedin` could redirect to `http://www.linkedin.com/your-profile`.
+
 ##### POST validation page
 ```php
 return array(

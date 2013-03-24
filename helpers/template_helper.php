@@ -56,42 +56,54 @@ function nav($args = array()) {
 function nav_walker($sitemap, $args, $parent = '') {
 	$output = '';
 	foreach($sitemap as $slug => $page):
-		if( ! isset($page['hidden']) OR ! $page['hidden']):
-			// A little logic
-			if($slug == 'home') {
-				$slug = '';
-			}
+		if($slug == 'home') {
+			$slug = '';
+		}
+		// Prep for page_meta
+		$page['slug'] = $slug;
+
+		if(Xysti::page_meta('hidden', $page)):
+			// Format the URI
 			$uri = $parent . $slug;
-			$current_depth = count(explode('/', $uri));
+			$current_depth = Xysti::uri_count($uri);
+
+			// If this page has children and we haven't reached the max depth
 			if(isset($page['/']) && is_array($page['/']) && ($current_depth < $args['depth'])):
-				$has_children = TRUE;
+				$dropdown = TRUE;
 			else:
-				$has_children = FALSE;
+				$dropdown = FALSE;
 			endif;
+
+			// Is this the active page
 			if(URI::segment($current_depth) == $uri):
 				$is_active = TRUE;
 			else:
 				$is_active = FALSE;
 			endif;
+
 			// Now the output
 			$output .= '<li class="';
-			if($has_children) {
+			if($dropdown) {
 				$output .= 'dropdown';
 			}
 			if($is_active) {
 				$output .= ' active';
 			}
 			//$output .= ' data-depth="' . $current_depth . '"';
-			$output .= '"><a href="' . $uri . '"';
-			if($has_children) {
+			if(isset($page['href'])):
+				$output .= '"><a href="' . Xysti::page_meta('href', $page) . '"';
+			else:
+				$output .= '"><a href="' . $uri . '"';
+			endif;
+			if($dropdown) {
 				$output .= ' class="dropdown-toggle" data-toggle="dropdown"';
 			}
-			$output .= '>' . $page['title'];
-			if($has_children) {
+			$output .= '>' . Xysti::page_meta('title', $page);
+			if($dropdown) {
 				$output .= ' <b class="caret"></b>';
 			}
 			$output .='</a>';
-			if($has_children):
+			if($dropdown):
 				$output .= PHP_EOL . '<ul class="dropdown-menu">' . PHP_EOL;
 				// Lets go deeper..
 				$output .= nav_walker($page['/'], $args, $uri . '/');
