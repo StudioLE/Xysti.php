@@ -39,6 +39,64 @@ return array(
 
 ## Documentation
 
+### Page Meta
+Page meta is the foundation of Xysti. The meta takes the form of a recursive array defined in `config/sitemap.php`. Each page is a key within the array with at least a `title` attribute.
+
+####
+- `title` `string` The page title you would like to use within the navigation menu, the `<title>` and `<h1>`
+- `content` `string` The content view to load from the `views/content` directory. Default is `segment1.segment2.segment3`
+- `redirect` `string` The URI will redirect to another page or another website. Default is `false`
+- `hidden` `bool` Is the hidden in the navigation menu and in the `sitemap.xml`. Default is `false`. If `auth = true` the page will be hidden from non authenticated users.
+- `disabled` `bool` If `true` the page will 404. Default is `false`
+- `post_rules` `array` An array of POST validator rules. 
+- `post_success` `string` The URI of the page to redirect to after successful POST validation.
+- `/` `array` An array of child pages and their meta.
+
+#### Examples
+
+##### Static page
+```php
+return array(
+
+	'about' => array(
+		'title' = 'About Us'
+	)
+
+	
+);
+```
+
+##### Child pages
+```php
+return array(
+
+	'portfolio' => array(
+		'title' => 'My portfolio',
+		'/' => array(
+			'web-design' => array(
+				'title' => 'Website design'
+			),
+			'photography' => array(
+				'title' => 'Photography'
+			)
+		)
+	)
+	
+);
+```
+
+##### Dynamic page
+```php
+return array(
+
+	'images' => array(
+		'title' => 'Images',
+		'/' => 'dynamic'
+	)
+
+	
+);
+```
 
 ### Template Helper
 
