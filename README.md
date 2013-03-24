@@ -98,6 +98,26 @@ return array(
 );
 ```
 
+##### POST validation page
+```php
+return array(
+	
+	'contact' => array(
+		'title' => 'Contact us',
+		'post_rules' => array(
+			'email' => 'required|email',
+			'message' => 'required'
+		),
+		'post_success' => 'thank-you'
+	),
+	
+	'thank-you' => array(
+		'title' => 'Thanks for getting in touch!'
+	)
+	
+);
+```
+
 ### Template Helper
 
 #### nav( $args )
