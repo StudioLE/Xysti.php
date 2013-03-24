@@ -537,7 +537,7 @@ class Xysti {
 		// The meta has not been explicitly set so lets estimate it
 		switch($request):
 			case 'title':
-				return ucwords($segment);
+				return Str::title($segment);
 			break;
 			case 'hidden':
 				// If the page requires authentication and the user is NOT logged in
