@@ -533,11 +533,6 @@ class Xysti {
 		elseif(isset($page[$request])):
 			return $page[$request];
 		endif;
-
-		
-		else:
-			$auth_and_denied = FALSE;
-		endif;
 		
 		// The meta has not been explicitly set so lets estimate it
 		switch($request):
@@ -546,7 +541,7 @@ class Xysti {
 			break;
 			case 'hidden':
 				// If the page requires authentication and the user is NOT logged in
-				if(isset($page['auth']) && $page['auth'] && Xysti::user_check()):
+				if(isset($page['auth']) && $page['auth'] && ! Xysti::user_check()):
 					return TRUE;
 				// Else if the page is disabled
 				elseif(isset($page['disabled']) && $page['disabled'])
