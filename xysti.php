@@ -169,17 +169,7 @@ class Xysti {
 
 		// Is auth required
 		if(Xysti::page('auth')):
-			$auth_driver = Config::get('xysti.auth', 'default');
-			// Default auth
-			if($auth_driver == 'default'):
-				$auth = Auth::check();
-			// Sentry auth
-			elseif($auth_driver == 'sentry'):
-				$auth = Sentry::check();
-			else:
-				return Xysti::error(500, 'Unknown authentication driver.');
-			endif;
-			if( ! $auth) {
+			if( ! Xysti::user_check()) {
 				return Redirect::to('login', 403)->with('warning', 'You must be signed in to do that')->with('success_redirect', URI::current());
 			}
 		endif;
@@ -248,8 +238,8 @@ class Xysti {
 
 		// What content?
 
-		// Content must have a title in the sitemap
-		if(Xysti::page('title') != 'Error'):
+		// Content must be in the sitemap
+		if(Xysti::page('exists')):
 			// Is content explicitly set?
 			if(Xysti::page('content')):
 				Xysti::$views['content'] = 'content.' . Xysti::page('content');
@@ -426,9 +416,59 @@ class Xysti {
 		return $page;
 	}
 
-	private static function sitemap_page($segment_count, $segments)
+
+	/**
+	 * Page variable
+	 * 
+	 * Checks wether a page variable is set in the sitemap and returns it
+	 * @param string $request The variable key to return
+	 * @param mixed $uri Optional segment # or URI
+	 * @return mixed
+	 */
+	public static function page($request, $uri = NULL)
 	{
-		
+
+		// Use current page if no second argument
+		if(is_null($uri)):
+			// Check for a cached page
+			if(is_null(Xysti::$page)) {
+				Xysti::$page = Xysti::sitemap_page_walk(Xysti::uri_array());
+			}
+			// Take the page from the cache
+			$page = Xysti::$page;
+		// Segment number specified
+		elseif(is_int($uri)):
+			$page = Xysti::sitemap_page_walk(Xysti::uri_array(), $uri);
+		// Segment string specified
+		elseif(is_string($uri)):
+			$page = Xysti::sitemap_page_walk(Xysti::uri_array($uri), Xysti::uri_count($uri));
+		else:
+			Log::write('error', 'Unexpected Xysti::page() call at ' . URI::current() . '.');
+		endif;
+
+		// Page was found
+		if($page):
+			return Xysti::page_meta($request, $page);
+		else:
+			Log::write('error', 'Xysti::page(' . $request . ',' . $uri . ') could not be found at ' . URI::current() . '.');
+			return FALSE;
+		endif;
+	}
+
+
+	/**
+	 * Walk the sitemap to find the requested page meta
+	 * 
+	 * @param array $segments
+	 * @param int $segment_count Number of segments
+	 * @return array Page meta
+	 */
+	private static function sitemap_page_walk($segments, $segment_count = NULL)
+	{
+		if(is_null($segment_count)) {
+			$segment_count = Xysti::uri_count();
+		}
+
 		$walk = Xysti::sitemap();
 
 		// Hack to permit numeric URI segments..
@@ -473,66 +513,57 @@ class Xysti {
 		return FALSE;
 	}
 
-
 	/**
-	 * Page variable
+	 * Bypass walking the sitemap if you already know the $page
 	 * 
-	 * Checks wether a page variable is set in the sitemap and returns it
-	 * @param string $request The variable key to return
-	 * @param int $uri_segment Optional segment # of page
+	 * @param array $request Page meta key
+	 * @param array $page Page meta array
+	 * @param string $segment The page segment / slug
 	 * @return mixed
 	 */
-	public static function page($request, $uri = NULL)
+	public static function page_meta($request, $page, $segment = NULL)
 	{
-
-		// Use current page if no second argument
-		if(is_null($uri)):
-
-			// Check for cached page
-			if(is_null(Xysti::$page)) {
-				Xysti::$page = Xysti::sitemap_page(Xysti::uri_count(), Xysti::uri_array());
-			}
-			$page = Xysti::$page;
-		// Segment number specified
-		elseif(is_int($uri)):
-			$page = Xysti::sitemap_page($uri, Xysti::uri_array());
-		// Segment string specified
-		elseif(is_string($uri)):
-			$page = Xysti::sitemap_page(Xysti::uri_count($uri), Xysti::uri_array($uri));
-		else:
-			Log::write('error', 'Unexpected Xysti::page() call at ' . URI::current() . '.');
+		// If all are sought
+		if($request == 'all'):
+			return $page;
+		// If this function has been called with 'exists' then we've already determined the page exists
+		elseif($request == 'exists'):
+			return TRUE;
+		// If it's set return it.
+		elseif(isset($page[$request])):
+			return $page[$request];
 		endif;
 
-		//Xysti::helper('dbug');
-
-		// Page was found
-		if($page):
-			// If all are sought
-			if($request == 'all'):
-				return $page;
-			// If it's set return it.
-			elseif(isset($page[$request])):
-				return $page[$request];
-			endif;
+		// If the page requires authentication and the user is NOT logged in
+		if(isset($page['auth']) && $page['auth'] && Xysti::user_check()):
+			$auth_and_denied = TRUE;
 		else:
-			Log::write('error', 'Children expected but not found in Xysti::page() at ' . URI::current() . '.');
+			$auth_and_denied = FALSE;
 		endif;
-
-		// Either page was not found or attributes not set
-		if($request == 'title'):
-			return 'Error';
-		else:
-			return FALSE;
-		endif;
+		
+		// The meta has not been explicitly set so lets estimate it
+		switch($request):
+			case 'title':
+				return ucwords($segment);
+			break;
+			case 'hidden':
+				return $auth_and_denied;
+			break;
+			case 'disabled':
+				return $auth_and_denied;
+			break;
+		endswitch;
+		Log::write('error', 'Could not find Xysti::page_meta(' . $request . ') at ' . URI::current() . '.');
+		return FALSE;
 	}
 
 
 	/**
-	 * User variable
+	 * User meta
 	 * 
-	 * Checks wether a page variable is set in the sitemap and returns it
+	 * A wrapper for the various supported user drivers
 	 * @param string $request The variable key to return
-	 * @param int $uri_segment Optional segment # of page
+	 * @param int $user Optional user id
 	 * @return mixed
 	 */
 	public static function user($request = NULL, $user = NULL)
@@ -560,6 +591,21 @@ class Xysti {
 			return $output['first_name'] . ' ' . $output['last_name'];
 		else:
 			return $output;
+		endif;
+	}
+
+	public static function user_check($request = NULL)
+	{
+		$auth_driver = Config::get('xysti.auth', 'default');
+		
+		// Default auth
+		if($auth_driver == 'default'):
+			return Auth::check();
+		// Sentry auth
+		elseif($auth_driver == 'sentry'):
+			return Sentry::check();
+		else:
+			return Xysti::error(500, 'Unknown authentication driver.');
 		endif;
 	}
 
