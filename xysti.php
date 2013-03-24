@@ -534,9 +534,7 @@ class Xysti {
 			return $page[$request];
 		endif;
 
-		// If the page requires authentication and the user is NOT logged in
-		if(isset($page['auth']) && $page['auth'] && Xysti::user_check()):
-			$auth_and_denied = TRUE;
+		
 		else:
 			$auth_and_denied = FALSE;
 		endif;
@@ -547,10 +545,13 @@ class Xysti {
 				return ucwords($segment);
 			break;
 			case 'hidden':
-				return $auth_and_denied;
-			break;
-			case 'disabled':
-				return $auth_and_denied;
+				// If the page requires authentication and the user is NOT logged in
+				if(isset($page['auth']) && $page['auth'] && Xysti::user_check()):
+					return TRUE;
+				// Else if the page is disabled
+				elseif(isset($page['disabled']) && $page['disabled'])
+					return TRUE;
+				endif;
 			break;
 		endswitch;
 		Log::write('error', 'Could not find Xysti::page_meta(' . $request . ') at ' . URI::current() . '.');
