@@ -58,6 +58,53 @@ Route::get('error/(:num)', function()
 
 
 
+// 	Utility routes
+// ------------------------------------------------
+
+function sitemap_xml_walk($sitemap, $parent = '') {
+	$output = '';
+	
+	foreach($sitemap as $slug => $page):
+		$uri = $parent . $slug;
+
+		// If hidden
+		if( ! isset($page['hidden']) OR ! $page['hidden']):
+			$output .= '<url>' . PHP_EOL;
+			$output .= '<loc>' . URL::base() . '/' . $uri . '</loc>' . PHP_EOL;
+			foreach(array('lastmod', 'changefreq', 'priority') as $attr):
+				if(isset($page['sitemap'][$attr])) {
+					$output .= '<' . $attr . '>' . $page['sitemap'][$attr] . '</' . $attr . '>' . PHP_EOL;
+				}
+			endforeach;
+			$output .= '</url>' . PHP_EOL;
+		endif;
+
+		// If children
+		if(isset($page['/']) && is_array($page['/'])):
+			$output .= sitemap_xml_walk($page['/'], $uri . '/');
+		endif;
+	endforeach;
+	
+	return $output;
+}
+
+/**
+ * Sitemap.xml
+ */
+Route::get('sitemap.xml', function()
+{
+	$output = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+	
+	$output .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+
+	$output .= sitemap_xml_walk(Xysti::sitemap());
+	
+	$output .= '</urlset>' . PHP_EOL;
+
+	return Response::make($output, 200, array('Content-type: application/xml'));
+});
+
+
 // 	Authentication routes
 // ------------------------------------------------
 
