@@ -62,7 +62,7 @@ function nav_walker($sitemap, $args, $parent = '') {
 		// Prep for page_meta
 		$page['slug'] = $slug;
 
-		if(Xysti::page_meta('hidden', $page)):
+		if( ! Xysti::page_meta('hidden', $page)):
 			// Format the URI
 			$uri = $parent . $slug;
 			$current_depth = Xysti::uri_count($uri);

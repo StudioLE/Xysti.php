@@ -544,7 +544,7 @@ class Xysti {
 				if(isset($page['auth']) && $page['auth'] && ! Xysti::user_check()):
 					return TRUE;
 				// Else if the page is disabled
-				elseif(isset($page['disabled']) && $page['disabled'])
+				elseif(isset($page['disabled']) && $page['disabled']):
 					return TRUE;
 				endif;
 			case 'href':
