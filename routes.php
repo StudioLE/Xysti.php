@@ -68,7 +68,7 @@ function sitemap_xml_walk($sitemap, $parent = '') {
 		$uri = $parent . $slug;
 
 		// If hidden
-		if( ! isset($page['hidden']) OR ! $page['hidden']):
+		if( ! Xysti::page_meta('disabled', $page) &&  ! Xysti::page_meta('auth', $page)):
 			$output .= '<url>' . PHP_EOL;
 			$output .= '<loc>' . URL::base() . '/' . $uri . '</loc>' . PHP_EOL;
 			foreach(array('lastmod', 'changefreq', 'priority') as $attr):
@@ -101,7 +101,7 @@ Route::get('sitemap.xml', function()
 	
 	$output .= '</urlset>' . PHP_EOL;
 
-	return Response::make($output, 200, array('Content-type: application/xml'));
+	return Response::make($output, 200, array('Content-Type' => 'application/xml'));
 });
 
 
