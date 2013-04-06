@@ -209,6 +209,23 @@ class Xysti {
 		endif;
 	}
 
+	/**
+	 * Determine where to redirect
+	 * 
+	 * Used by login and register routes to determine where to redirect to on success
+	 * @return redirect
+	 */
+	public static function success_redirect($default = 'home')
+	{
+		if(Session::get('success_redirect')):
+			return Redirect::to(Session::get('success_redirect'));
+		elseif(Xysti::page('post_success')):
+			return Redirect::to(Xysti::page('post_success'));
+		else:
+			return Redirect::to($default);
+		endif;
+	}
+
 
 	/**
 	 * Render a view
@@ -553,7 +570,7 @@ class Xysti {
 
 
 	/**
-	 * User meta
+	 * Fetch user meta
 	 * 
 	 * A wrapper for the various supported user drivers
 	 * @param string $request The variable key to return
@@ -588,7 +605,12 @@ class Xysti {
 		endif;
 	}
 
-	public static function user_check($request = NULL)
+
+	/**
+	 * Check whether the user is logged in
+	 * @return bool
+	 */
+	public static function user_check()
 	{
 		$auth_driver = Config::get('xysti.auth', 'default');
 		
@@ -610,7 +632,7 @@ class Xysti {
 
 
 	/**
-	 * URI to Array
+	 * Convert URI to Array
 	 * @var string $uri
 	 * @return string
 	 */

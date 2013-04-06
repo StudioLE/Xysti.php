@@ -172,13 +172,7 @@ if(Config::get('xysti.auth')):
 
 		// Login was a success
 		if($login):
-			if(Session::get('success_redirect')):
-				return Redirect::to(Session::get('success_redirect'));
-			elseif(Xysti::page('post_success')):
-				return Redirect::to(Xysti::page('post_success'));
-			else:
-				return Redirect::to('home');
-			endif;
+			return Xysti::success_redirect();
 		// Login failed..
 		else:
 			Session::flash('warning', 'User and password do not match');
@@ -221,6 +215,12 @@ if(Config::get('xysti.auth')):
 
 				if($user):
 					$registration = TRUE;
+					try {
+						Sentry::force_login($user);
+					}
+					catch(Sentry\SentryException $e) {
+						Session::flash('error', $e->getMessage());
+					}
 				else:
 					$registration = FALSE;
 				endif;
@@ -239,13 +239,6 @@ if(Config::get('xysti.auth')):
 		// Registration was a success
 		if($registration):
 
-			try {
-				Sentry::force_login($user);
-			}
-			catch(Sentry\SentryException $e) {
-				Session::flash('error', $e->getMessage());
-			}
-
 			// User activation email..
 			if(0):
 				$postmark = new Postmark();
@@ -255,16 +248,17 @@ if(Config::get('xysti.auth')):
 				$response = $postmark->send();
 			endif;
 
-			if(Session::get('success_redirect')):
-				return Redirect::to(Session::get('success_redirect'));
-			elseif(Xysti::page('post_success')):
-				return Redirect::to(Xysti::page('post_success'));
-			else:
-				return Redirect::to('home');
-			endif;
+			if(function_exists('registration_callback')) {
+				return registration_callback();
+			}
+
+			return Xysti::success_redirect();
+
 		// Registration failed..
 		else:
+
 			Session::flash('warning', 'Registration failed');
+
 		endif;
 
 		return Xysti::make();
