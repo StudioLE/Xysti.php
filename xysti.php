@@ -200,6 +200,7 @@ class Xysti {
 		// If validation has failed
 		if($validation->fails()):
 			Session::flash('warning', 'Could not submit. Validation errors were found.');
+			// @todo remove Former dependance
 			Former::withErrors($validation);
 			// Make the page without any more routes
 			return Xysti::make();
@@ -443,14 +444,14 @@ class Xysti {
 		elseif(is_string($uri)):
 			$page = Xysti::sitemap_page_walk(Xysti::uri_array($uri), Xysti::uri_count($uri));
 		else:
-			Log::write('error', 'Unexpected Xysti::page() call at ' . URI::current() . '.');
+			Log::write('error', 'Unexpected Xysti::page(' . $request . ',' . $uri . ') call at ' . URI::current() . '.');
 		endif;
 
 		// Page was found
 		if($page):
 			return Xysti::page_meta($request, $page);
 		else:
-			Log::write('error', 'Xysti::page(' . $request . ',' . $uri . ') could not be found at ' . URI::current() . '.');
+			//Log::write('error', 'Xysti::page(' . $request . ',' . $uri . ') could not be found at ' . URI::current() . '.');
 			return FALSE;
 		endif;
 	}
@@ -528,7 +529,11 @@ class Xysti {
 			return $page;
 		// If this function has been called with 'exists' then we've already determined the page exists
 		elseif($request == 'exists'):
-			return TRUE;
+			if(isset($page['href']) && $page['href']):
+				return FALSE;
+			else:
+				return TRUE;
+			endif;
 		// If it's set return it.
 		elseif(isset($page[$request])):
 			return $page[$request];
@@ -550,7 +555,7 @@ class Xysti {
 			case 'href':
 			break;
 		endswitch;
-		Log::write('error', 'Could not find Xysti::page_meta(' . $request . ') at ' . URI::current() . '.');
+		//Log::write('error', 'Could not find Xysti::page_meta(' . $request . ') at ' . URI::current() . '.');
 		return FALSE;
 	}
 
