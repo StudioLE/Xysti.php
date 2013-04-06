@@ -472,14 +472,6 @@ class Xysti {
 
 		$walk = Xysti::sitemap();
 
-		// Hack to permit numeric URI segments..
-		// Must be prefixed in sitemap with _
-		foreach($segments as $key => $value) {
-			if(intval($value)){ 
-				$segments[$key] = '_' . $value;
-			}
-		}
-
 		// Traverse the sitemap up to the $segment_count
 		for($depth = 1; $depth <= $segment_count; $depth++):
 			
