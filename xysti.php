@@ -263,7 +263,7 @@ class Xysti {
 				Xysti::$views['content'] = 'content.' . Xysti::page('content');
 			// Is this an incorrecty configured dynamic page?
 			elseif(Xysti::page('/') == 'dynamic'):
-				Xysti::error(500, 'Dynamic pages must have a content variable specified.');
+				return Xysti::error(500, 'Dynamic pages must have a content meta value specified.');
 			// Else use the URI
 			else:
 				Xysti::$views['content'] = 'content.' . str_replace('/', '.', URI::current());
@@ -464,7 +464,11 @@ class Xysti {
 			Log::write('error', 'Unexpected Xysti::page(' . $request . ',' . $uri . ') call at ' . URI::current() . '.');
 		endif;
 
+		// Fetch the meta regardless of whether a sitemap entry has been found
+		return Xysti::page_meta($request, $page);
+
 		// Page was found
+		// @todo Remove this if statement on confirmation of working
 		if($page):
 			return Xysti::page_meta($request, $page);
 		else:
@@ -521,7 +525,11 @@ class Xysti {
 			endif;
 		endfor;
 
-		return FALSE;
+
+		$page['slug'] = $this_segment;
+		$page['not_found'] = TRUE;
+
+		return $page;
 	}
 
 	/**
@@ -536,9 +544,13 @@ class Xysti {
 		// If all are sought
 		if($request == 'all'):
 			return $page;
-		// If this function has been called with 'exists' then we've already determined the page exists
+		// Does the page exist?
 		elseif($request == 'exists'):
-			if(isset($page['href']) && $page['href']):
+			// If there is no entry
+			if(isset($page['not_found']) && $page['not_found']):
+				return FALSE;
+			// If it's just a menu item
+			elseif(isset($page['href']) && $page['href']):
 				return FALSE;
 			else:
 				return TRUE;
@@ -564,7 +576,7 @@ class Xysti {
 			case 'href':
 			break;
 		endswitch;
-		//Log::write('error', 'Could not find Xysti::page_meta(' . $request . ') at ' . URI::current() . '.');
+		//Log::write('debug', 'Could not find Xysti::page_meta(' . $request . ') at ' . URI::current() . '.');
 		return FALSE;
 	}
 
