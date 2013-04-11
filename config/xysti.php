@@ -29,18 +29,41 @@ return array(
 	 * FALSE will disable Xysti's authentication routes.
 	 */
 	'auth' => 'sentry',
+	
 
 	/**
-	 * Authentication routes
+	 * Xysti routes
 	 *
-	 * Which uri should Xysti map authentication functions to?
-	 * To disable auth routes set `auth` to FALSE
+	 * Xysti will automatically map the following routes
+	 * in routes.php
 	 */
-	'auth_routes' => array(
-		'login' => 'login',
-		'logout' => 'logout',
-		'register' => 'register'
+	'routes' => array(
+		
+		/**
+		 * Authentication routes
+		 *
+		 * Which uri should Xysti map authentication functions to?
+		 * To disable auth routes set `auth` to FALSE
+		 */
+		'auth' => array(
+			'login' => 'login',
+			'logout' => 'logout',
+			'register' => 'register'
+		),
+		
+		/**
+		 * Downloads routes
+		 *
+		 * Force download of files / PDFs
+		 */
+		'downloads' => array(
+			'download' => 'download',
+			'view' => 'view'
+		),
+
+		'xml_sitemap' => 'sitemap.xml'
 	),
+
 
 	/**
 	 * TimThumb path
@@ -76,19 +99,14 @@ return array(
 	),
 
 	/**
-	 * Downloads
+	 * Resource directories
 	 * 
-	 * An array of named downloads for use with the downloads() template function.
+	 * Assets is relative to public/
+	 * All others are relatives to the base
 	 */
-	'downloads' => array(
-		'conversation-club-workbook' => array(
-			'uri' => 'foo/bar.pdf',
-			'title' => 'Foo Bar'
-		),
-		'50mb' => array(
-			'uri' => '50mb.dat',
-			'title' => '50 MB Random Data'
-		)
-	)
+	'resources' => array(
+		'assets' => 'assets/',
+		'downloads' => 'storage/downloads/'
+	),
 
 );

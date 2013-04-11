@@ -62,7 +62,7 @@ function nav_walker($sitemap, $args, $parent = '') {
 		// Prep for page_meta
 		$page['slug'] = $slug;
 
-		if( ! Xysti::page_meta('hidden', $page)):
+		if( ! Xysti::meta('hidden', $page)):
 			// Format the URI
 			$uri = $parent . $slug;
 			$current_depth = Xysti::uri_count($uri);
@@ -91,14 +91,14 @@ function nav_walker($sitemap, $args, $parent = '') {
 			}
 			//$output .= ' data-depth="' . $current_depth . '"';
 			if(isset($page['href'])):
-				$output .= '"><a href="' . Xysti::page_meta('href', $page) . '"';
+				$output .= '"><a href="' . Xysti::meta('href', $page) . '"';
 			else:
 				$output .= '"><a href="' . $uri . '"';
 			endif;
 			if($dropdown) {
 				$output .= ' class="dropdown-toggle" data-toggle="dropdown"';
 			}
-			$output .= '>' . Xysti::page_meta('title', $page);
+			$output .= '>' . Xysti::meta('title', $page);
 			if($dropdown) {
 				$output .= ' <b class="caret"></b>';
 			}
@@ -277,19 +277,28 @@ function button($args = array()) {
  * Generate Bootstrap styled buttons for Xysti downloads
  * @param array $download_keys
  */
-function downloads($download_keys) {
+function downloads($args = array()) {
+	$args = array_merge(array(
+		// Set defaults here
+		'echo' => TRUE,
+		'keys' => array()
+	), $args);
 	$output = '<p>';
-	$downloads = Config::get('Xysti.downloads');
-	foreach($download_keys as $key):
+	$downloads = Config::get('downloads');
+	foreach($args['keys'] as $key):
 		$output .= button(array(
 			'value' => $downloads[$key]['title'],
-			'href' => 'assets/downloads/' . $downloads[$key]['uri'], 
+			'href' => Config::get('xysti.resources.downloads', 'downloads/') . $downloads[$key]['uri'], 
 			'target' => '_blank',
 			'after' => '&nbsp;&nbsp&nbsp'
 		)) . PHP_EOL;
 	endforeach;
 	$output .= '</p>';
-	echo $output;
+	if($args['echo']):
+		echo $output;
+	else:
+		return $output;
+	endif;
 }
 
 

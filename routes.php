@@ -51,262 +51,320 @@ Route::get('/', function()
 /**
  * Error requests
  */
-Route::get('error/(:num)', function()
+Route::get('error/(:num)', function($number)
 {
-	return Xysti::error(URI::segment(2));
+	return Xysti::error($number);
 });
 
 
 
-// 	Utility routes
+// 	Sitemap.xml
 // ------------------------------------------------
 
-function sitemap_xml_walk($sitemap, $parent = '') {
-	$output = '';
-	
-	foreach($sitemap as $slug => $page):
-		$uri = $parent . $slug;
+if(Config::get('xysti.routes.xml_sitemap')):
 
-		// If hidden
-		if( ! Xysti::page_meta('disabled', $page) &&  ! Xysti::page_meta('auth', $page)):
-			$output .= '<url>' . PHP_EOL;
-			$output .= '<loc>' . URL::base() . '/' . $uri . '</loc>' . PHP_EOL;
-			foreach(array('lastmod', 'changefreq', 'priority') as $attr):
-				if(isset($page['sitemap'][$attr])) {
-					$output .= '<' . $attr . '>' . $page['sitemap'][$attr] . '</' . $attr . '>' . PHP_EOL;
-				}
-			endforeach;
-			$output .= '</url>' . PHP_EOL;
-		endif;
+	function sitemap_xml_walk($sitemap, $parent = '') {
+		$output = '';
+		
+		foreach($sitemap as $slug => $page):
+			$uri = $parent . $slug;
 
-		// If children
-		if(isset($page['/']) && is_array($page['/'])):
-			$output .= sitemap_xml_walk($page['/'], $uri . '/');
-		endif;
-	endforeach;
-	
-	return $output;
-}
+			// If hidden
+			if( ! Xysti::meta('disabled', $page) &&  ! Xysti::meta('auth', $page)):
+				$output .= '<url>' . PHP_EOL;
+				$output .= '<loc>' . URL::base() . '/' . $uri . '</loc>' . PHP_EOL;
+				foreach(array('lastmod', 'changefreq', 'priority') as $attr):
+					if(isset($page['sitemap'][$attr])) {
+						$output .= '<' . $attr . '>' . $page['sitemap'][$attr] . '</' . $attr . '>' . PHP_EOL;
+					}
+				endforeach;
+				$output .= '</url>' . PHP_EOL;
+			endif;
 
-/**
- * Sitemap.xml
- */
-Route::get('sitemap.xml', function()
-{
-	$output = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
-	
-	$output .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+			// If children
+			if(isset($page['/']) && is_array($page['/'])):
+				$output .= sitemap_xml_walk($page['/'], $uri . '/');
+			endif;
+		endforeach;
+		
+		return $output;
+	}
 
-	$output .= sitemap_xml_walk(Xysti::sitemap());
-	
-	$output .= '</urlset>' . PHP_EOL;
+	/**
+	 * Sitemap.xml
+	 */
+	Route::get(Config::get('xysti.routes.xml_sitemap'), function()
+	{
+		$output = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+		$output .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+		$output .= sitemap_xml_walk(Xysti::sitemap());
+		$output .= '</urlset>' . PHP_EOL;
+		return Response::make($output, 200, array('Content-Type' => 'application/xml'));
+	});
 
-	return Response::make($output, 200, array('Content-Type' => 'application/xml'));
-});
+endif;
 
 
 // 	Authentication routes
 // ------------------------------------------------
 
-if(Config::get('xysti.auth')):
+if(Config::get('xysti.routes.auth')):
 
 
+		
 	/**
 	 * Sign the user out and redirect
 	 */
-	Route::get(Config::get('xysti.auth_routes.logout', 'logout'), array(
-		'as' => 'logout',
-		function()
-	{
-		$auth_driver = Config::get('xysti.auth', 'default');
+	if(Config::get('xysti.routes.auth.logout')):
 
-		// Default auth
-		if($auth_driver == 'default'):
-			Auth::logout();
-		// Sentry auth
-		elseif($auth_driver == 'sentry'):
-			Sentry::logout();
-		endif;
+		Route::get(Config::get('xysti.routes.auth.logout', 'logout'), array(
+			'as' => 'logout',
+			function()
+		{
+			$auth_driver = Config::get('xysti.auth', 'default');
 
-		return Redirect::to_route('login')->with('info', 'You have been signed out');
-	}));
+			// Default auth
+			if($auth_driver == 'default'):
+				Auth::logout();
+			// Sentry auth
+			elseif($auth_driver == 'sentry'):
+				Sentry::logout();
+			endif;
+
+			return Redirect::to_route('login')->with('info', 'You have been signed out');
+		}));
+
+	endif;
 
 
 	/**
 	 * Handle login
 	 */
-	Route::post(Config::get('xysti.auth_routes.login', 'login'), array(
-		'before' => 'check|validate', 
-		'as' => 'login',
-		function()
-	{
-		$auth_driver = Config::get('xysti.auth', 'default');
+	if(Config::get('xysti.routes.auth.login')):
 
-		// Default auth
-		if($auth_driver == 'default'):
-			
-			$login = Auth::attempt(array(
-				'username' => Input::get('email'),
-				'password' => Input::get('password')
-			));
+		Route::post(Config::get('xysti.routes.auth.login', 'login'), array(
+			'before' => 'check|validate', 
+			'as' => 'login',
+			function()
+		{
+			$auth_driver = Config::get('xysti.auth', 'default');
 
-		// Sentry auth
-		elseif($auth_driver == 'sentry'):
+			// Default auth
+			if($auth_driver == 'default'):
+				
+				$login = Auth::attempt(array(
+					'username' => Input::get('email'),
+					'password' => Input::get('password')
+				));
 
-			try {
-				$login = Sentry::login(
-					Input::get('email'),
-					Input::get('password'),
-					Input::get('remember')
-				);
-			}
-			catch(Sentry\SentryException $e) {
-				Session::flash('error', $e->getMessage());
-				$login = FALSE;
-			}
+			// Sentry auth
+			elseif($auth_driver == 'sentry'):
 
-		else:
-			return Xysti::error(500, 'Unknown authentication driver.');
-		endif;
+				try {
+					$login = Sentry::login(
+						Input::get('email'),
+						Input::get('password'),
+						Input::get('remember')
+					);
+				}
+				catch(Sentry\SentryException $e) {
+					Session::flash('error', $e->getMessage());
+					$login = FALSE;
+				}
+
+			else:
+				return Xysti::error(500, 'Unknown authentication driver.');
+			endif;
 
 
-		// Login was a success
-		if($login):
-			return Xysti::success_redirect();
-		// Login failed..
-		else:
-			Session::flash('warning', 'User and password do not match');
-		endif;
+			// Login was a success
+			if($login):
+				return Xysti::success_redirect();
+			// Login failed..
+			else:
+				Session::flash('warning', 'User and password do not match');
+			endif;
 
-		return Xysti::make();
-	}));
+			return Xysti::make();
+		}));
+
+	endif;
 
 
 	/**
 	 * Handle registration attempts
 	 */
-	Route::post(Config::get('xysti.auth_routes.register', 'register'), array(
-		'before' => 'check|validate', 
-		'as' => 'register',
-		function()
-	{
-		Xysti::helper('dbug');
+	if(Config::get('xysti.routes.auth.register')):
 
-		$auth_driver = Config::get('xysti.auth', 'default');
+		Route::post(Config::get('xysti.routes.auth.register', 'register'), array(
+			'before' => 'check|validate', 
+			'as' => 'register',
+			function()
+		{
+			Xysti::helper('dbug');
 
-		// Default auth
-		if($auth_driver == 'default'):
-			
-			Xysti::error(500, 'Default auth currently not configured for registration.');
+			$auth_driver = Config::get('xysti.auth', 'default');
 
-		// Sentry auth
-		elseif($auth_driver == 'sentry'):
-
-			try {
+			// Default auth
+			if($auth_driver == 'default'):
 				
-				$user = Sentry::user()->create(array(
-					'email' => Input::get('email'),
-					'password' => Input::get('password'),
-					'metadata' => array(
-						'first_name' => Input::get('first_name'),
-						'last_name'  => Input::get('last_name'),
-					)
-				));
+				Xysti::error(500, 'Default auth currently not configured for registration.');
 
-				if($user):
-					$registration = TRUE;
-					try {
-						Sentry::force_login($user);
-					}
-					catch(Sentry\SentryException $e) {
-						Session::flash('error', $e->getMessage());
-					}
-				else:
+			// Sentry auth
+			elseif($auth_driver == 'sentry'):
+
+				try {
+					
+					$user = Sentry::user()->create(array(
+						'email' => Input::get('email'),
+						'password' => Input::get('password'),
+						'metadata' => array(
+							'first_name' => Input::get('first_name'),
+							'last_name'  => Input::get('last_name'),
+						)
+					));
+
+					if($user):
+						$registration = TRUE;
+						try {
+							Sentry::force_login($user);
+						}
+						catch(Sentry\SentryException $e) {
+							Session::flash('error', $e->getMessage());
+						}
+					else:
+						$registration = FALSE;
+					endif;
+				}
+				catch(Sentry\SentryException $e) {
+					$errors = $e->getMessage();
+					Session::flash('error', $e->getMessage());
 					$registration = FALSE;
-				endif;
-			}
-			catch(Sentry\SentryException $e) {
-				$errors = $e->getMessage();
-				Session::flash('error', $e->getMessage());
-				$registration = FALSE;
-			}
+				}
 
-		else:
-			return Xysti::error(500, 'Unknown authentication driver.');
-		endif;
-
-
-		// Registration was a success
-		if($registration):
-
-			// User activation email..
-			if(0):
-				$postmark = new Postmark();
-				$postmark->to();
-				$postmark->subject('Chim chim on the loose again');
-				$postmark->txt_body('Hey Speed, Please keep Spritle and Chim chim in line. Love, Racer X.');
-				$response = $postmark->send();
+			else:
+				return Xysti::error(500, 'Unknown authentication driver.');
 			endif;
 
-			if(function_exists('registration_callback')) {
-				return registration_callback();
-			}
 
-			return Xysti::success_redirect();
+			// Registration was a success
+			if($registration):
 
-		// Registration failed..
-		else:
+				// User activation email..
+				if(0):
+					$postmark = new Postmark();
+					$postmark->to();
+					$postmark->subject('Chim chim on the loose again');
+					$postmark->txt_body('Hey Speed, Please keep Spritle and Chim chim in line. Love, Racer X.');
+					$response = $postmark->send();
+				endif;
 
-			Session::flash('warning', 'Registration failed');
+				if(function_exists('registration_callback')) {
+					return registration_callback();
+				}
 
-		endif;
+				return Xysti::success_redirect();
 
-		return Xysti::make();
-	}));
+			// Registration failed..
+			else:
+
+				Session::flash('warning', 'Registration failed');
+
+			endif;
+
+			return Xysti::make();
+		}));
+
+	endif;
 
 
 	/**
 	 * Activate a new user and log them in
+	 * @todo Finish email authentication mechanism
 	 */
-	Route::get('activate/(:any)/(:any)', function()
-	{
-		Xysti::helper('dbug');
+	if(FALSE && Config::get('xysti.routes.auth.activate')):
 
-		$auth_driver = Config::get('xysti.auth', 'default');
+		Route::get('activate/(:any)/(:any)', function()
+		{
+			Xysti::helper('dbug');
 
-		// Default auth
-		if($auth_driver == 'default'):
-			
-			Xysti::error(500, 'Default auth currently not configured for activation.');
+			$auth_driver = Config::get('xysti.auth', 'default');
 
-		// Sentry auth
-		elseif($auth_driver == 'sentry'):
+			// Default auth
+			if($auth_driver == 'default'):
+				
+				Xysti::error(500, 'Default auth currently not configured for activation.');
 
-			try {
-				$activate_user = Sentry::activate_user(
-					URI::segment(2),
-					URI::segment(3),
-					FALSE
-				);
+			// Sentry auth
+			elseif($auth_driver == 'sentry'):
+
+				try {
+					$activate_user = Sentry::activate_user(
+						URI::segment(2),
+						URI::segment(3),
+						FALSE
+					);
+				}
+				catch (Sentry\SentryException $e) {
+					// issue activating the user
+					// store/set and display caught exceptions such as a suspended user with limit attempts feature.
+					$errors = $e->getMessage();
+				}
+			else:
+				return Xysti::error(500, 'Unknown authentication driver.');
+			endif;
+
+
+			if($activate_user):
+				//Sentry::force_login(URI::segment(2));
+				return Redirect::to(Xysti::page('login', 'post_login'));
+			else:
+				return Xysti::make(500, 'User activation failed.');
+			endif;
+
+		});
+
+	endif;
+
+endif;
+
+
+// 	Downloads routes
+// ------------------------------------------------
+
+if(Config::get('xysti.routes.downloads')):
+
+	/**
+	 * View file
+	 */
+	if(Config::get('xysti.routes.downloads.download')):
+
+		Route::get(Config::get('xysti.routes.downloads.download')'/(:any)', function($request)
+		{
+			$directory = 'assets/downloads/';
+			$download = Config::get('downloads.' . $request);
+
+			if(empty($download)) {
+				return Xysti::error(404, 'Download ' . $request . ' is not in config');
 			}
-			catch (Sentry\SentryException $e) {
-				// issue activating the user
-				// store/set and display caught exceptions such as a suspended user with limit attempts feature.
-				$errors = $e->getMessage();
-			}
-		else:
-			return Xysti::error(500, 'Unknown authentication driver.');
-		endif;
 
+			// Run authentication etc on the download
+			$before = Xysti::before($meta);
 
-		if($activate_user):
-			//Sentry::force_login(URI::segment(2));
-			return Redirect::to(Xysti::page('login', 'post_login'));
-		else:
-			return Xysti::make(500, 'User activation failed.');
-		endif;
+			Xysti::helper('dbug');
+			new dbug($before);
+			exit;
 
-	});
+			$path = Config::get('xysti.routes.downloads.download') . $download['uri'];
+
+			if(file_exists($path)):
+				return Response::download($path);
+			else:
+				return Xysti::error(404, 'Download ' . $request . ' could not be found at ' . $path);
+			endif;
+		});
+
+	endif;
 
 endif;
 

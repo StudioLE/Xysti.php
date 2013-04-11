@@ -154,12 +154,23 @@ class Xysti {
 	 * is a redirect before 
 	 * @return string
 	 */
-	public static function before()
+	public static function before($meta = NULL)
 	{
+		
+		// If no meta declared
+		if(is_null($meta)):
+			// Check for a stored page
+			// There shouldn't be one, this is the first function called
+			 if(empty(Xysti::$page)) {
+				Xysti::$page = Xysti::sitemap_page_walk(Xysti::uri_array());
+			}
+			$meta = Xysti::$page;
+		endif;
+
 
 		// Is the page disabled?
-		if(Xysti::page('disabled')):
-			if(Xysti::page('disabled') === TRUE):
+		if(Xysti::meta('disabled', $meta)):
+			if(Xysti::meta('disabled', $meta) === TRUE):
 				return Xysti::error(404);
 			else:
 				return Xysti::page('disabled');
@@ -168,15 +179,17 @@ class Xysti {
 		
 
 		// Is auth required
-		if(Xysti::page('auth')):
+		if(Xysti::meta('auth', $meta)):
 			if( ! Xysti::user_check()) {
-				return Redirect::to('login', 403)->with('warning', 'You must be signed in to do that')->with('success_redirect', URI::current());
+				return Redirect::to('login', 403)
+						->with('warning', 'You must be signed in to do that')
+						->with('success_redirect', URI::current());
 			}
 		endif;
 
 		// Is this a redirect
-		if(Xysti::page('redirect')) {
-			return Redirect::to(Xysti::page('redirect'), 301);
+		if(Xysti::meta('redirect', $meta)) {
+			return Redirect::to(Xysti::meta('redirect', $meta), 301);
 		}
 	}
 
@@ -460,17 +473,21 @@ class Xysti {
 		// Segment string specified
 		elseif(is_string($uri)):
 			$page = Xysti::sitemap_page_walk(Xysti::uri_array($uri), Xysti::uri_count($uri));
+		// Segment array specified
+		elseif(is_string($uri)):
+			$page = Xysti::sitemap_page_walk(Xysti::uri_array($uri), Xysti::uri_count($uri));
 		else:
-			Log::write('error', 'Unexpected Xysti::page(' . $request . ',' . $uri . ') call at ' . URI::current() . '.');
+			//Log::write('error', 'Unexpected Xysti::page(' . $request . ',' . $uri . ') call at ' . URI::current() . '.');
+			return Xysti::error(500, 'Unexpected Xysti::page(' . $request . ',' . $uri . ') call at ' . URI::current() . '.');
 		endif;
 
 		// Fetch the meta regardless of whether a sitemap entry has been found
-		return Xysti::page_meta($request, $page);
+		return Xysti::meta($request, $page);
 
 		// Page was found
 		// @todo Remove this if statement on confirmation of working
 		if($page):
-			return Xysti::page_meta($request, $page);
+			return Xysti::meta($request, $page);
 		else:
 			//Log::write('error', 'Xysti::page(' . $request . ',' . $uri . ') could not be found at ' . URI::current() . '.');
 			return FALSE;
@@ -533,50 +550,56 @@ class Xysti {
 	}
 
 	/**
-	 * Bypass walking the sitemap if you already know the $page
+	 * Read meta from an array
+	 * Bypassing walking the sitemap
 	 * 
 	 * @param array $request Page meta key
 	 * @param array $page Page meta array
 	 * @return mixed
 	 */
-	public static function page_meta($request, $page)
+	public static function meta($request, $meta)
 	{
 		// If all are sought
 		if($request == 'all'):
-			return $page;
+			return $meta;
 		// Does the page exist?
 		elseif($request == 'exists'):
 			// If there is no entry
-			if(isset($page['not_found']) && $page['not_found']):
+			if(isset($meta['not_found']) && $meta['not_found']):
 				return FALSE;
 			// If it's just a menu item
-			elseif(isset($page['href']) && $page['href']):
+			elseif(isset($meta['href']) && $meta['href']):
 				return FALSE;
 			else:
 				return TRUE;
 			endif;
 		// If it's set return it.
-		elseif(isset($page[$request])):
-			return $page[$request];
+		elseif(isset($meta[$request])):
+			return $meta[$request];
 		endif;
 		
 		// The meta has not been explicitly set so lets estimate it
 		switch($request):
 			case 'title':
-				return Str::title($page['slug']);
+				if(isset($meta['slug'])):
+					return Str::title($meta['slug']);
+				else:
+					Log::write('error', 'page has no slug.. Something has been configured incorrectly.');
+					return 'Error';
+				endif;
 			break;
 			case 'hidden':
 				// If the page requires authentication and the user is NOT logged in
-				if(isset($page['auth']) && $page['auth'] && ! Xysti::user_check()):
+				if(isset($meta['auth']) && $meta['auth'] && ! Xysti::user_check()):
 					return TRUE;
 				// Else if the page is disabled
-				elseif(isset($page['disabled']) && $page['disabled']):
+				elseif(isset($meta['disabled']) && $meta['disabled']):
 					return TRUE;
 				endif;
 			case 'href':
 			break;
 		endswitch;
-		//Log::write('debug', 'Could not find Xysti::page_meta(' . $request . ') at ' . URI::current() . '.');
+		//Log::write('debug', 'Could not find Xysti::meta(' . $request . ') at ' . URI::current() . '.');
 		return FALSE;
 	}
 
