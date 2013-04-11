@@ -14,12 +14,6 @@ return array(
 	 */
 	'template' => 'master',
 
-	/**
-	 * Google analytics
-	 *
-	 * Specify your analytics code for use in the template view.
-	 */
-	'analytics' => 'UA-XXXXXXX-X',
 
 	/**
 	 * Authentication model
@@ -58,10 +52,21 @@ return array(
 		 */
 		'downloads' => array(
 			'download' => 'download',
-			'view' => 'view'
+			'read' => 'view'
 		),
 
 		'xml_sitemap' => 'sitemap.xml'
+	),
+
+	/**
+	 * Resource directories
+	 * 
+	 * Assets is relative to public/
+	 * All others are relatives to the base
+	 */
+	'resources' => array(
+		'assets' => 'assets/',
+		'downloads' => 'storage/downloads/'
 	),
 
 
@@ -72,6 +77,7 @@ return array(
 	 * I recommend setting renaming timthumb.php to index.php and referencing the directory. 
 	 */
 	'timthumb' => 'img/timthumb.php',
+	
 
 	/**
 	 * Errors
@@ -96,17 +102,6 @@ return array(
 			'title' => 'Something\'s gone wrong',
 			'content' => '<p><b>We\'ll get it fixed for you as soon as possible.</b></p>'
 		)
-	),
-
-	/**
-	 * Resource directories
-	 * 
-	 * Assets is relative to public/
-	 * All others are relatives to the base
-	 */
-	'resources' => array(
-		'assets' => 'assets/',
-		'downloads' => 'storage/downloads/'
 	),
 
 );

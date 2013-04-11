@@ -152,6 +152,7 @@ class Xysti {
 	 * 
 	 * Checks wether the page needs authorisation or 
 	 * is a redirect before 
+	 * @param $meta Optional use meta other than current page
 	 * @return string
 	 */
 	public static function before($meta = NULL)

@@ -277,23 +277,45 @@ function button($args = array()) {
  * Generate Bootstrap styled buttons for Xysti downloads
  * @param array $download_keys
  */
-function downloads($args = array()) {
+function downloads($data = array()) {
 	$args = array_merge(array(
 		// Set defaults here
 		'echo' => TRUE,
+		'target' => '',
+		'wrap' => TRUE,
 		'keys' => array()
-	), $args);
-	$output = '<p>';
+	), $data);
+	if(empty($args['keys'])) {
+		$args['keys'] = $data;
+	}
+	$output = '';
+	if($args['wrap']) {
+		$output .= '<div class="downloads">';
+	}
 	$downloads = Config::get('downloads');
 	foreach($args['keys'] as $key):
-		$output .= button(array(
-			'value' => $downloads[$key]['title'],
-			'href' => Config::get('xysti.resources.downloads', 'downloads/') . $downloads[$key]['uri'], 
-			'target' => '_blank',
-			'after' => '&nbsp;&nbsp&nbsp'
-		)) . PHP_EOL;
+		if( ! empty($downloads[$key]['uri'])):
+			$output .= '<div class="btn-group">' . PHP_EOL;
+			$output .= button(array(
+				'echo' => FALSE,
+				'value' => $downloads[$key]['title'],
+				'href' => Config::get('xysti.routes.downloads.read', 'view') . '/' . $key, 
+				'target' => $args['target'],
+				'icon' => 'file-alt',
+				//'after' => '&nbsp;&nbsp&nbsp'
+			)) . PHP_EOL;
+			$output .= button(array(
+				'echo' => FALSE,
+				'href' => Config::get('xysti.routes.downloads.download', 'download') . '/' . $key
+			)) . PHP_EOL;
+			$output .= '</div>' . PHP_EOL;
+		else:
+			Log::write('warning', 'Could not find the download' . $key);
+		endif;
 	endforeach;
-	$output .= '</p>';
+	if($args['wrap']) {
+		$output .= '</div> <!-- .downloads -->';
+	}
 	if($args['echo']):
 		echo $output;
 	else:

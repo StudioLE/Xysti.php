@@ -335,13 +335,12 @@ endif;
 if(Config::get('xysti.routes.downloads')):
 
 	/**
-	 * View file
+	 * Download file
 	 */
 	if(Config::get('xysti.routes.downloads.download')):
 
-		Route::get(Config::get('xysti.routes.downloads.download')'/(:any)', function($request)
+		Route::get(Config::get('xysti.routes.downloads.download') . '/(:any)', function($request)
 		{
-			$directory = 'assets/downloads/';
 			$download = Config::get('downloads.' . $request);
 
 			if(empty($download)) {
@@ -349,19 +348,50 @@ if(Config::get('xysti.routes.downloads')):
 			}
 
 			// Run authentication etc on the download
-			$before = Xysti::before($meta);
+			$before = Xysti::before($download);
+			if( ! is_null($before)) {
+				return $before;
+			}
 
-			Xysti::helper('dbug');
-			new dbug($before);
-			exit;
+			$path = Config::get('xysti.resources.downloads') . $download['uri'];
 
-			$path = Config::get('xysti.routes.downloads.download') . $download['uri'];
-
-			if(file_exists($path)):
-				return Response::download($path);
-			else:
+			if( ! file_exists($path)) {
 				return Xysti::error(404, 'Download ' . $request . ' could not be found at ' . $path);
-			endif;
+			}
+
+			return Response::download($path);
+		});
+
+	endif;
+
+	/**
+	 * View file
+	 */
+	if(Config::get('xysti.routes.downloads.read')):
+
+		Route::get(Config::get('xysti.routes.downloads.read') . '/(:any)', function($request)
+		{
+			$download = Config::get('downloads.' . $request);
+
+			if(empty($download)) {
+				return Xysti::error(404, 'Download ' . $request . ' is not in config');
+			}
+
+			// Run authentication etc on the download
+			$before = Xysti::before($download);
+			if( ! is_null($before)) {
+				return $before;
+			}
+
+			$path = Config::get('xysti.resources.downloads') . $download['uri'];
+
+			if( ! file_exists($path)) {
+				return Xysti::error(404, 'Download ' . $request . ' could not be found at ' . $path);
+			}
+
+			return Response::make(File::get($path), 200, array(
+				'Content-Type' => File::mime(File::extension($path))
+			));
 		});
 
 	endif;

@@ -1,6 +1,6 @@
 <?php
 
-// 	Xysti Config
+// 	Xysti Downloads
 // ------------------------------------------------
 // Move this file to `application/config`
 // ------------------------------------------------
@@ -11,11 +11,10 @@
  * 
  * An array of named downloads for use with the downloads() template function.
  */
-
 return array(
-	'conversation-club-workbook' => array(
-		'uri' => 'foo/bar.pdf',
-		'title' => 'Foo Bar'
+	'project-brief' => array(
+		'uri' => 'project/brief.pdf',
+		'title' => 'Project Brief'
 	),
 	'50mb' => array(
 		'uri' => '50mb.dat',
