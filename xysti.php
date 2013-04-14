@@ -113,6 +113,7 @@ class Xysti {
 		else:
 			$error_message = 'Could not find helper ' . $helper . ' at ' . URI::current() . '.';
 			Log::write('error', $error_message);
+			// @todo better exit/error mechanism
 			exit($error_message);
 			return FALSE;
 		endif;

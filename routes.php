@@ -341,11 +341,13 @@ if(Config::get('xysti.routes.downloads')):
 
 		Route::get(Config::get('xysti.routes.downloads.download') . '/(:any)', function($request)
 		{
-			$download = Config::get('downloads.' . $request);
+			$downloads = Config::get('downloads');
 
-			if(empty($download)) {
+			if(empty($downloads[$request])) {
 				return Xysti::error(404, 'Download ' . $request . ' is not in config');
 			}
+			
+			$download = $downloads[$request];
 
 			// Run authentication etc on the download
 			$before = Xysti::before($download);
@@ -365,17 +367,19 @@ if(Config::get('xysti.routes.downloads')):
 	endif;
 
 	/**
-	 * View file
+	 * View download file
 	 */
 	if(Config::get('xysti.routes.downloads.read')):
 
 		Route::get(Config::get('xysti.routes.downloads.read') . '/(:any)', function($request)
 		{
-			$download = Config::get('downloads.' . $request);
+			$downloads = Config::get('downloads');
 
-			if(empty($download)) {
+			if(empty($downloads[$request])) {
 				return Xysti::error(404, 'Download ' . $request . ' is not in config');
 			}
+			
+			$download = $downloads[$request];
 
 			// Run authentication etc on the download
 			$before = Xysti::before($download);
